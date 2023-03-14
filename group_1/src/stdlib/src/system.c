@@ -23,12 +23,11 @@ void print_char(char c, unsigned char color, unsigned int position)
     video_memory[position * 2 + 1] = color;            // Set the attribute at the specified position in video memory
 }
 
-unsigned int printk(unsigned int position, const char *format, ...)
+void printk(const char *format, ...)
 {
-    va_list args;           // Declare a list of arguments
-    va_start(args, format); // Start the list of arguments at the format parameter
-
-    char c; // Declare a character to hold the current character in the format string
+    static unsigned int prev_position = 0; // Initialize the previous position to 0
+    va_list args;
+    va_start(args, format);
 
     while ((c = *format++)) // Loop over every character in the format string
     {
@@ -45,7 +44,7 @@ unsigned int printk(unsigned int position, const char *format, ...)
                 itoa(arg, buf, 10);          // Convert the integer to a string using base 10
                 for (int i = 0; buf[i]; i++) // Loop over every character in the string
                 {
-                    print_char(buf[i], 0x0F, position++); // Print the character at the current position in the string and increment the position
+                    print_char(buf[i], 0x0F, prev_position++); // Print the character at the current position in the string and increment the position
                 }
                 break;
             }
@@ -54,31 +53,31 @@ unsigned int printk(unsigned int position, const char *format, ...)
                 char *arg = va_arg(args, char *); // Get the string argument from the list of arguments
                 while (*arg)                      // Loop over every character in the string
                 {
-                    print_char(*arg++, 0x0F, position++); // Print the character at the current position in the string and increment the position
+                    print_char(*arg++, 0x0F, prev_position++); // Print the character at the current position in the string and increment the position
                 }
                 break;
             }
             case 'c': // If the format is for a character
             {
                 char arg = (char)va_arg(args, int); // Get the character argument from the list of arguments
-                print_char(arg, 0x0F, position++);  // Print the character at the current position in the string and increment the position
+                print_char(arg, 0x0F, prev_position++);  // Print the character at the current position in the string and increment the position
                 break;
             }
             }
         }
         else if (c == '\n') // If the current character is a newline character
         {
-            position = (position / 80 + 1) * 80; // Move the position to the start of the next line by adding 80 minus the current column to the current position
+            prev_position = (prev_position / 80 + 1) * 80; // Move the position to the start of the next line by adding 80 minus the current column to the current position
         }
         else // If the current character is not a formatting character or a newline character
         {
-            print_char(c, 0x0F, position++); // Print the character at the current position in the string and increment the position
+            print_char(c, 0x0F, prev_position++); // Print the character at the current position in the string and increment the position
         }
     }
 
     va_end(args);    // End the list of arguments
-    return position; // Return the final position after printing the formatted string
-}
+    }
+
 
 void reverse(char *str, int length)
 {
