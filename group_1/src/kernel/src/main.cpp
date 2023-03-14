@@ -1,4 +1,5 @@
-
+#include "gdt.h"
+#include "common.h"
 
 // Define entry point in asm to prevent C++ mangling
 extern "C"{
@@ -10,6 +11,7 @@ extern "C" void test_gdt();
 
 void kernel_main()
 {
-   write_string(15, "Hello world!");
-   //test_gdt();
+   init_descriptor_tables();
+   //write_string(15, "Hello world!");
+   test_gdt();
 }
