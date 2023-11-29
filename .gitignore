@@ -6,3 +6,4 @@ build_*/kernel.img
 *.lock
 .idea/*
 .idea
+cmake-build-debug
